@@ -14,3 +14,11 @@ def getRandomCharacters(length):
         result += getRandomCharacter()
 
     return result
+
+
+def getASCIIValue(indexes, tagstr):
+    sumIndex = 0
+    for i in indexes:
+        sumIndex += ord(tagstr[i])
+
+    return sumIndex % len(tagstr)
