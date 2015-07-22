@@ -8,7 +8,14 @@ def post(uri, values, files):
     request = urllib2.Request(uri)
     request.add_header(
         'Content-Type', 'multipart/form-data; boundary=%s' % boundary)
+    request_data = getFormData(values, files, boundary)
+    request.add_data(request_data)
+    response = urllib2.urlopen(request)
+    response_data = response.read()
+    return response_data
 
+
+def getFormData(values, files, boundary):
     form_boundary = '--' + boundary
     result = []
     for key, value in values:
@@ -34,12 +41,8 @@ def post(uri, values, files):
 
     result.append(form_boundary + '--')
     result.append('')
-
     request_data = '\r\n'.join(result)
-    request.add_data(request_data)
-    response = urllib2.urlopen(request)
-    response_data = response.read()
-    return response_data
+    return request_data
 
 
 def getBoundary():
