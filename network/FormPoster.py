@@ -15,23 +15,23 @@ def post(uri, values, files):
     return response_data
 
 
-def getFormData(values, files, boundary):
+def getFormData(dictionary, files, boundary):
     form_boundary = '--' + boundary
     result = []
-    for key, value in values:
+    for key, value in dictionary.items():
         for e in [
             form_boundary,
-            'Content-Disposition: form-data; name="%s"' % key,
+            'Content-Disposition: form-data; name="%s"' % key.encode('ascii'),
             '',
-            value
+            value.encode('ascii')
         ]:
             result.append(e)
 
-    for file_name, file_data in files:
+    for name, file_name, file_data in files:
         for e in [
             form_boundary,
             'Content-Disposition: form-data; name="%s"; filename="%s"' % (
-                file_name, file_name),
+                name, file_name),
             'Content-Type: %s' % mimetypes.guess_type(
                 file_name)[0] or 'application/octet-stream',
             '',

@@ -82,7 +82,7 @@ if __name__ == '__main__':
     content_length = len(body)
 
     # Build the request
-    request = urllib2.Request('http://192.168.11.25:8090/controller/advertise')
+    request = urllib2.Request('http://192.168.11.237:8090/controller/advertise')
     request.add_header('Content-type', content_type)
     request.add_header('Content-length', content_length)
     request.add_data(body)
