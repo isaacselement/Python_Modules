@@ -9,10 +9,13 @@ def translateStringsFileToDictionary(strings_file_path):
         line = f.readline()
 
         while line:
-            keyValue = line.split('=')
-            key = keyValue[1].strip()
-            value = keyValue[0].strip()
-            dictionary[key] = value
+            line = line.strip()
+            if '=' in line:
+                keyValue = line.split('=')
+                key = keyValue[0]
+                value = keyValue[1].replace(';', '')
+                dictionary[value] = key
+
             line = f.readline()
 
         return dictionary
@@ -20,13 +23,12 @@ def translateStringsFileToDictionary(strings_file_path):
 
 def extractToStringsFile(project_directory, strings_file_path=None):
     userHome = os.path.expanduser("~")
-    previewOutput = open(userHome + '/Desktop/preview.txt', 'w')
-
     if strings_file_path is None:
         strings_file_path = userHome + '/Desktop/zh-Hans.strings'
 
     stringsOutput = open(strings_file_path, 'w')
     chineseArray = []
+    previewOutput = open(userHome + '/Desktop/preview.txt', 'w')
 
     for parent, dirnames, filenames in os.walk(project_directory):
             filenames = filter(lambda filename: filename[-2:] == '.m', filenames)
@@ -60,11 +62,10 @@ def extractToStringsFile(project_directory, strings_file_path=None):
                         line = f.readline()
 
     for i, chinese in enumerate(chineseArray):
-        chinese = chinese.replace("@\"", "=")
-        chinese = chinese.replace("\"", "")
+        chinese = chinese.replace("@", "\"\"=") + ';'
 
         if i != 0:
-            stringsOutput.write('\n\r')
+            stringsOutput.write('\n')
 
         stringsOutput.write(chinese)
 
@@ -72,7 +73,11 @@ def extractToStringsFile(project_directory, strings_file_path=None):
     stringsOutput.close()
 
 
-def replaceFromStringsFile(project_directory, strings_file_path):
+def replaceFromStringsFile(project_directory, strings_file_path=None):
+    userHome = os.path.expanduser("~")
+    if strings_file_path is None:
+        strings_file_path = userHome + '/Desktop/zh-Hans.strings'
+
     for parent, dirnames, filenames in os.walk(project_directory):
             filenames = filter(lambda filename: filename[-2:] == '.m', filenames)
 
@@ -108,14 +113,45 @@ def replaceFromStringsFile(project_directory, strings_file_path):
 
                 for (lineNum, elements) in lineNumChineses.items():
                     for chinese in elements:
-                        chinese = chinese.replace("@\"", "").replace("\"", "")
-                        key = stringsDictionary[chinese]
-                        command = "sed -i -e '" + str(lineNum) + "s/@\"" + chinese + "\"/" + re.escape(key) + "/g' " + fullname
-                        print command
-                        os.system(command)
+                        try:
+                            chinese = chinese.replace("@", "")
+                            i18nkey = stringsDictionary[chinese]
+                            i18nkey = re.escape(i18nkey)
+                            i18nkey = "I18N_KEY(@" + i18nkey + ")"
+                            command = "sed -i -e '" + str(lineNum) + "s/@" + chinese + "/" + i18nkey + "/g' " + fullname
+                            print command
+                            os.system(command)
+                        except KeyError as e:
+                            print "Replacing Error. " + chinese + " Line " + str(lineNum) + " , " + os.path.basename(fullname)
+                            print (e)
+
+
+def handleFileContents(file_path):
+    with open(file_path) as f:
+        temp_file_path = os.path.dirname(file_path) + '/' + '_____' + os.path.basename(file_path)
+        tempFileOutput = open(temp_file_path, 'w')
+        line = f.readline()
+        lineNumber = 0
+        while line:
+            lineNumber += 1
+            tempFileOutput.write(line.strip() + ';' + '\n')
+            line = f.readline()
+        tempFileOutput.flush()
+        tempFileOutput.close()
 
 
 if __name__ == '__main__':
-    # extractToStringsFile(sys.argv[1], sys.argv[2])
-    replaceFromStringsFile(sys.argv[1], sys.argv[2])
-    # translateStringsFileToDictionary(sys.argv[1])
+    project_directory = sys.argv[1]
+    strings_file_path = sys.argv[2] if len(sys.argv) >= 3 else None
+    user_input = raw_input("Select your action: 1 for extract , 2 for replace , 3 for extract & replace , 4 for Handle One File\n")
+    if user_input == '1':
+        extractToStringsFile(project_directory, strings_file_path)
+    elif user_input == '2':
+        replaceFromStringsFile(project_directory, strings_file_path)
+    elif user_input == '3':
+        extractToStringsFile(project_directory, strings_file_path)
+        user_input = raw_input("After you finish the .strings files keys, hit any key to continue:\n")
+        replaceFromStringsFile(project_directory, strings_file_path)
+
+    elif user_input == '4':
+        handleFileContents(sys.argv[1])
