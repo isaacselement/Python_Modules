@@ -3,6 +3,9 @@ import re
 import sys
 
 
+__Format__ = '.h'
+
+
 def translateStringsFileToDictionary(strings_file_path):
     with open(strings_file_path) as f:
         dictionary = {}
@@ -31,13 +34,13 @@ def extractToStringsFile(project_directory, strings_file_path=None):
     previewOutput = open(userHome + '/Desktop/preview.txt', 'w')
 
     for parent, dirnames, filenames in os.walk(project_directory):
-            filenames = filter(lambda filename: filename[-2:] == '.m', filenames)
+            filenames = filter(lambda filename: filename[-2:] == __Format__, filenames)
 
             for filename in filenames:
                 fullname = os.path.join(parent, filename)
-                previewOutput.write("\n\r" + "\n\r" + fullname + ":\n\r")
 
                 with open(fullname) as f:
+                    flag = 0
                     line = f.readline()
 
                     while line:
@@ -52,6 +55,10 @@ def extractToStringsFile(project_directory, strings_file_path=None):
                                 matches = pattern.findall(line.decode('utf-8'))
 
                                 for element in matches:
+                                    if flag == 0:
+                                        previewOutput.write("\n\r" + "\n\r" + fullname + ":\n\r")
+                                        flag = 1
+
                                     chinese = element.encode('utf-8')
                                     previewOutput.write('\n\r')
                                     previewOutput.write(chinese)
@@ -79,7 +86,7 @@ def replaceFromStringsFile(project_directory, strings_file_path=None):
         strings_file_path = userHome + '/Desktop/zh-Hans.strings'
 
     for parent, dirnames, filenames in os.walk(project_directory):
-            filenames = filter(lambda filename: filename[-2:] == '.m', filenames)
+            filenames = filter(lambda filename: filename[-2:] == __Format__, filenames)
 
             stringsDictionary = translateStringsFileToDictionary(strings_file_path)
             for filename in filenames:
@@ -117,7 +124,7 @@ def replaceFromStringsFile(project_directory, strings_file_path=None):
                             chinese = chinese.replace("@", "")
                             i18nkey = stringsDictionary[chinese]
                             i18nkey = re.escape(i18nkey)
-                            i18nkey = "I18N_KEY(@" + i18nkey + ")"
+                            i18nkey = "LOCALIZE(@" + i18nkey + ")"
                             command = "sed -i -e '" + str(lineNum) + "s/@" + chinese + "/" + i18nkey + "/g' " + fullname
                             print command
                             os.system(command)
