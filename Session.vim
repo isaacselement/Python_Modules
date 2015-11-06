@@ -22,9 +22,7 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +137 helper/I18NHelper.py
-badd +28 network/FormPoster.py
-badd +24 ~/.vimrc
+badd +1 helper/I18NHelper.py
 silent! argdel *
 edit helper/I18NHelper.py
 set splitbelow splitright
@@ -36,8 +34,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 30 + 90) / 180)
-exe 'vert 2resize ' . ((&columns * 149 + 90) / 180)
+exe 'vert 1resize ' . ((&columns * 30 + 111) / 223)
+exe 'vert 2resize ' . ((&columns * 192 + 111) / 223)
 argglobal
 enew
 file ~/Workspaces/python/Python_Modules/helper/
@@ -238,7 +236,7 @@ setlocal foldcolumn=0
 setlocal foldenable
 setlocal foldexpr=pymode#folding#expr(v:lnum)
 setlocal foldignore=#
-setlocal foldlevel=8
+setlocal foldlevel=0
 setlocal foldmarker={{{,}}}
 setlocal foldmethod=expr
 setlocal foldminlines=1
@@ -293,30 +291,34 @@ setlocal syntax=python
 endif
 setlocal tabstop=4
 setlocal tags=
-setlocal textwidth=120
+setlocal textwidth=250
 setlocal thesaurus=
 setlocal noundofile
 setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal nowrap
 setlocal wrapmargin=0
-6
+27
+normal zc
+41
 normal zo
-24
+133
 normal zo
-129
+137
 normal zo
-let s:l = 142 - ((39 * winheight(0) + 28) / 56)
+133
+normal zo
+let s:l = 149 - ((142 * winheight(0) + 28) / 56)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-142
+149
 normal! 0
 lcd ~/Workspaces/python/Python_Modules
 wincmd w
 2wincmd w
-exe 'vert 1resize ' . ((&columns * 30 + 90) / 180)
-exe 'vert 2resize ' . ((&columns * 149 + 90) / 180)
+exe 'vert 1resize ' . ((&columns * 30 + 111) / 223)
+exe 'vert 2resize ' . ((&columns * 192 + 111) / 223)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
